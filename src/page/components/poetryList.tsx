@@ -1,41 +1,44 @@
 import * as React from "react"
-import { Text,View,StyleSheet} from "react-native";
+import { Text,View,StyleSheet, TouchableOpacity} from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon1 from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFavoriteData } from "../../func/throttle";
+import { getFavoriteData,storeData } from "../../func/throttle";
 import { ScrollView } from "react-native-gesture-handler";
-const PoetryList = () => {
+const PoetryList = ({navigation,route}:any) => {
     const [data,setData] = React.useState<any>()
     React.useEffect(()=>{
-        getData()
+        getFavoriteData().then(res=>{
+            setData(res)
+        })
+        // getData()
     },[])
-    const getData = async () => {
-        try {
-          let oldValue = await AsyncStorage.getItem('@favorite_poetry')
-          if(oldValue){
-            oldValue=JSON.parse(oldValue)
-          }else{
-            oldValue=null
-          }
-          setData(oldValue)
-        //   return oldValue
-        } catch(e) {
-          // read error
-        }
-      }
+    const pressHeart = (obj:any) => {
+        console.log(1);
+        storeData(obj).then(()=>{
+            getFavoriteData().then(res=>{
+                setData(res)
+            })
+        })
+    }
     const renderPeotryList = () => {
         if(data)return(
-            data.map((item,index)=>
+            data.map((item:any,index:number)=>
             <View style={PoetryListStyle.main} key={index}>
                 <View>
+                <TouchableOpacity onPress={() => navigation.navigate('Poetry',{item})}>
                     <Text style={PoetryListStyle.mainContent}>
                         {item.oneContent}
                     </Text>
+                </TouchableOpacity>
                     <Text style={{color:'rgb(189, 154, 0)',}}>
                         {item.author+'《'+item.title+'》'}
                     </Text>
                 </View>
-                <Icon name="heart-o" size={25} color="skyblue" />
+                <TouchableOpacity onPress={()=>pressHeart(item)}>
+                    <Icon1 name="heart-dislike-outline" size={25} color="skyblue" />
+                </TouchableOpacity>
+                
             </View>
         ))
     }

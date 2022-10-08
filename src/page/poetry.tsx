@@ -11,7 +11,7 @@ import { getFavoriteData } from "../func/throttle";
 const Poetry = ({navigation,route}:any) => {
     // const data = route.params
     // 这个data 进来的时候就有
-  const [data,setData] = React.useState(route.params);
+  const [data,setData] = React.useState(route.params.item);
   const [isFavorite,setIsFavorite] =React.useState<boolean>()
 
   React.useEffect(()=>{
@@ -24,8 +24,10 @@ const Poetry = ({navigation,route}:any) => {
     getFavoriteData().then(res=>{
       if(res&&res.length){
         let flag:any =false
-        res.findIndex((value,index,arr)=>{
+        res.findIndex((value:any,index:number,arr:Array<any>)=>{
           if(data.title==value.title){
+            // console.log('data.title',data.title);
+            // console.log('value.title',value.title);
             flag=true
           }
         })
@@ -42,7 +44,7 @@ const Poetry = ({navigation,route}:any) => {
     storeData(data).then(()=>{
       getData()
       // 调用事件
-      DeviceEventEmitter.emit('page1',1)
+      DeviceEventEmitter.emit('page1',route.params.poetry)
     })
   }
   const clearAll = async () => {
@@ -58,17 +60,17 @@ const Poetry = ({navigation,route}:any) => {
     <><ScrollView>
       <View>
         <View style={styles.mainText} >
-          <TouchableOpacity onPress={() => navigation.navigate('Poetry')}>
+          
             <View style={styles.mainHead}  >
               <Text style={styles.mainHeadText} >{data.title}</Text>
             </View>
-          </TouchableOpacity>
+          
           <View style={styles.mainTitle}>
-            <Text style={styles.mainTitleText}>{data.author}</Text>
+            <Text style={styles.mainTitleText}>{data.author+'('+data.dynasty+')'}</Text>
           </View>
           <View style={styleP.poertyContent}>
             <Text style={styles.mainContentText}>
-            {data.content.map((item: any,index: any) => {
+            {data.content.map((item: any,index: number) => {
               return (item+"\n")
             })}
             </Text>

@@ -3,7 +3,9 @@ import { StyleSheet, Text, TextInput, View,ScrollView, Button,RefreshControl,  A
 import { TouchableHighlight,TouchableOpacity,DeviceEventEmitter } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getFavoriteData,storeData,throttle } from "../func/throttle";
+// import logo from '../assest/log.png'
 import axios from 'axios'
+const logo = require('../assest/log.png')
 interface a{
   title:string,
   author:string,
@@ -50,7 +52,11 @@ const Home = ({navigation,route}:any) => {
                                 />),[url])
   React.useEffect(()=>{
     const listen = DeviceEventEmitter.addListener('page1',params =>{
-      homeGetHeart(poetry)
+      // 这里会丢失poetry,选用传递参数的方法保存当前页面。
+      // console.log('lis1',poetry);
+      // console.log('lis2',params);
+      params?homeGetHeart(params):homeGetHeart(poetry)
+      // homeGetHeart(poetry)
     })
   },[])                          
   React.useEffect(()=>{
@@ -75,14 +81,16 @@ const Home = ({navigation,route}:any) => {
     axiosQuery(poetry)
   }
   // 设置页面爱心状态 与数据的位置对应 主要修改的是favorite数组，触发页面渲染。
-  const homeGetHeart = (poetry) => {
+  const homeGetHeart = (poetry:Array<object>) => {
     getFavoriteData().then((res)=>{
-        let flagArr = []
-        poetry.map((item,index1) => {
+        let flagArr:any = []
+        poetry.map((item:any,index1:number) => {
           let flag:any =false
-          if(res&&res.length){
-            res.findIndex((value,index2,arr)=>{
+          if(res&&res.length){ 
+            res.findIndex((value:any,index2:any,arr:Array<any>)=>{
               if(item.title==value.title){
+                // console.log('item.title',item.title);
+                // console.log('value.title',value.title);  
                 flag=true
               }
             })
@@ -91,6 +99,8 @@ const Home = ({navigation,route}:any) => {
           }
           flagArr[index1] = flag
         })
+        // console.log('flagAr',flagArr);
+        
         setFavorite(flagArr)
     })
   } 
@@ -178,7 +188,7 @@ const Home = ({navigation,route}:any) => {
       return(
         poetry.map( (item,index) => 
           <View style={styles.mainText} key={index}>
-            <TouchableOpacity onPress={() => navigation.navigate('Poetry',item)}>
+            <TouchableOpacity onPress={() => navigation.navigate('Poetry',{item,poetry})}>
               <View style={styles.mainHead}  >
                 <Text style={styles.mainHeadText} >{item.title}</Text>
               </View>
@@ -212,7 +222,11 @@ const Home = ({navigation,route}:any) => {
                 &nbsp;&nbsp; &nbsp;&nbsp;
                 <Icon name="share-alt" size={20} color="skyblue" />
                 &nbsp;&nbsp; &nbsp;&nbsp;
+                <TouchableOpacity onPress={()=>{ 
+                  console.log(poetry)
+                 }}>
                 <Icon name="arrow-circle-o-right" size={20} color="skyblue" />
+                </TouchableOpacity>
               </Text>
             </View>
           </View>
@@ -245,21 +259,8 @@ const Home = ({navigation,route}:any) => {
           {IMG}
           <Text style={styles.mainContnet}>
             { poetry[0].oneContent + '\n'}
-            {poetry[0].author+'《'+poetry[0].title+'》'}
+            {poetry[0].author+'('+poetry[0].dynasty+')'+'《'+poetry[0].title+'》'}
           </Text>
-          <View style={styles.mainFooter}>
-            <Text style={styles.mainFooterText}> 
-              <Icon name="heart-o" size={20} color="skyblue" />
-              &nbsp;&nbsp; &nbsp;&nbsp;
-              <Icon name="plus-circle" size={20} color="skyblue" />
-              &nbsp;&nbsp; &nbsp;&nbsp;
-              <Icon name="share" size={20} color="skyblue" />
-              &nbsp;&nbsp; &nbsp;&nbsp;
-              <Icon name="share-alt" size={20} color="skyblue" />
-              &nbsp;&nbsp; &nbsp;&nbsp;
-              <Icon name="arrow-circle-o-right" size={20} color="skyblue" />
-            </Text>
-          </View>
         </View>
         {renderPoetry() }
         <ActivityIndicator size={'large'} color={'skyblue'}/>
@@ -267,9 +268,13 @@ const Home = ({navigation,route}:any) => {
     </ScrollView>
     </>
   )
-  return<><View><Text>默认内容</Text></View></>
+  return<><ActivityIndicator size={'large'} color={'skyblue'}/></>
 }
 export var styles = StyleSheet.create({
+  Logo:{
+    height:'100%',
+
+  },
   tinyLogo:{
     borderRadius:20,
     height:200,
@@ -313,7 +318,7 @@ export var styles = StyleSheet.create({
     color:'rgb(189, 154, 0)',
     fontSize:13
   },
-  mainContent:{
+  mainContent:{ 
     maxHeight:180,
     // height:40,
     backgroundColor:'white',

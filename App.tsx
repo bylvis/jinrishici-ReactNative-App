@@ -11,10 +11,14 @@ import MyFavorite from './src/page/MyFavorite';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import SplashScreen from 'react-native-splash-screen'
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator()
 const TabStack = () => {
+  React.useEffect(()=>{
+    SplashScreen.hide();
+  },[])
   return(
     <>  
      <StatusBar backgroundColor="white" barStyle={'dark-content'} />
@@ -72,7 +76,6 @@ export default function App() {
               }
             }></Stack.Screen>
         <Stack.Screen name='MyFavorite' component={MyFavorite}  
-        
           options={
               {
               headerShadowVisible:false,
